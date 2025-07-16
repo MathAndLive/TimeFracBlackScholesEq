@@ -1,4 +1,5 @@
 from . import finmath1
-from . import stable_distribution
+from archive import stable_distribution
+from . import monte_carlo
 
-__all__ = ["finmath1", "stable_distribution"]
+__all__ = ["finmath1", "stable_distribution", "monte_carlo"]

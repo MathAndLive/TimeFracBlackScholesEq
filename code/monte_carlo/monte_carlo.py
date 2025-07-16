@@ -8,7 +8,7 @@ def monte_carlo(S0: float,
                 sigma: float,
                 alpha: float,
                 size: int = 5_000_000,
-                call: bool = True) -> float:
+                call: bool = True) -> tuple[float, float]:
     '''
     Calculates the price of a European option using Monte Carlo method with subordination
     for the time fractional Black-Scholes model.
@@ -27,7 +27,8 @@ def monte_carlo(S0: float,
         call (bool): True for a call option, False for a put option.
 
     Returns:
-        float: The estimated price of the European option.
+        mean (float): The estimated price of the European option.
+        std (float): The standard deviation of the estimated price.
     '''
 
     if not (0 < alpha <= 1):
@@ -44,7 +45,8 @@ def monte_carlo(S0: float,
     e_t = (T / s1) ** alpha
 
     z_norm = np.random.randn(size)
-    S_T = S0 * np.exp((r - 0.5 * sigma ** 2) * e_t + sigma * np.sqrt(e_t) * z_norm)
+    S_T = S0 * np.exp((r - 0.5 * sigma ** 2) * e_t +
+                      sigma * np.sqrt(e_t) * z_norm)
 
     if call:
         payoff = np.maximum(S_T - K, 0)
@@ -52,7 +54,9 @@ def monte_carlo(S0: float,
         payoff = np.maximum(K - S_T, 0)
 
     discounted_payoff = np.exp(-r * e_t) * payoff
-    return np.mean(discounted_payoff)
+    mean = np.mean(discounted_payoff)
+    std = np.std(discounted_payoff, ddof=1) / np.sqrt(size)
+    return mean, std
 
 
 if __name__ == '__main__':
@@ -64,16 +68,22 @@ if __name__ == '__main__':
     alpha = 0.8
     N = 5_000_000
 
-    price_call = monte_carlo(S0, K, T, r, sigma, alpha, N, call=True)
-    price_put = monte_carlo(S0, K, T, r, sigma, alpha, N, call=False)
-    print(f'(CALL) Monte-Carlo method (alpha = {alpha}) price = {price_call:.4f}')
-    print(f'(PUT) Monte-Carlo method (alpha = {alpha}) price = {price_put:.4f}\n')
+    price_call, _ = monte_carlo(S0, K, T, r, sigma, alpha, N, call=True)
+    price_put, _ = monte_carlo(S0, K, T, r, sigma, alpha, N, call=False)
+    print(
+        f'(CALL) Monte-Carlo method (alpha = {alpha}) price = {price_call:.4f}')
+    print(
+        f'(PUT) Monte-Carlo method (alpha = {alpha}) price = {price_put:.4f}\n')
 
     alpha_classic = 1.0
-    price_classic_call = monte_carlo(S0, K, T, r, sigma, alpha_classic, N, call=True)
-    price_classic_put = monte_carlo(S0, K, T, r, sigma, alpha_classic, N, call=False)
-    print(f'(CALL) Monte-Carlo method (alpha = {alpha_classic}) price = {price_classic_call:.4f}')
-    print(f'(PUT) Monte-Carlo method (alpha = {alpha_classic}) price = {price_classic_put:.4f}\n')
+    price_classic_call, _ = monte_carlo(
+        S0, K, T, r, sigma, alpha_classic, N, call=True)
+    price_classic_put, _ = monte_carlo(
+        S0, K, T, r, sigma, alpha_classic, N, call=False)
+    print(
+        f'(CALL) Monte-Carlo method (alpha = {alpha_classic}) price = {price_classic_call:.4f}')
+    print(
+        f'(PUT) Monte-Carlo method (alpha = {alpha_classic}) price = {price_classic_put:.4f}\n')
 
     '''
     Output

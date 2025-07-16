@@ -215,49 +215,29 @@ def FBSsolverFDM(S_max: float,
     return U, t, S
 
 
-def FBSextract_value(S0: float,
-                     K: float,
-                     T0: float,
-                     r: float,
-                     sigma: float,
-                     alpha: float,
-                     M: int,
-                     N: int,
-                     T_max: float = -1,
-                     S_max: float = -1,
-                     call: bool = True) -> float:
+def FBSextract_value(U: np.ndarray,
+                     t: np.ndarray,
+                     S: np.ndarray
+                     T0: float
+                     S0: float) -> float:
     '''
-    Uses FBSsolverFDM to solve the fractional Black-Scholes equation on time
-    interval [0, T_max] and price interval [0, S_max], then extracts the option's
-    price ONLY at time untill expiration T0 and base asset price S0.
-    If T_max and/or S_max are not provided, default boundaries of T_max = T0,
-    S_max = 10 * S0 are set.
+    Extracts price of the option at given time untill expiration T0 and
+    base asset price S0 from the output of FBSsolverFDM
 
     Args:
-      S0 (float)    - base asset price at which option price will be calculated
-      K (float)     - strike price of the option
-      T0 (float)    - time untill expiration date at which option price will be calculated
-      r (float)     - risk-free interest rate
-      sigma (float) - volatility
-      alpha (float) - degree of fractional derivative
-      M (int)       - number of subdivisions for time grid
-      N (int)       - number of subdivisions for price grid
-      S_max (float) - maximal base asset price, 10 * S0 by default
-      T_max (float) - maximal time untill expiration, T0 by default
-      call (bool)   - True to get the call option price,
-                      False to get put option price
+      U (np.ndarray) - matrix of option prices as returned by FBSsolverFDM
+      t (np.ndarray) - time grid as returned by FBSsolverFDM
+      S (np.ndarray) - price grid as returned by FBSsolverFDM
+      S0 (float)     - base asset price at which option price will be returned
+      T0 (float)     - time untill expiration date at which option price will be returned
 
     Returns:
-      (M+1) * (N+1) Matrix U, with U[i, j] being the price of option with time untill expiration
-      t[i] and base asset price S[j]
-      Array t of length M+1 - time interval [0, T_max] discretized into M equal subintervals
-      Array S of length N+1 - price interval [0, S_max] discretized into N equal subintervals
+      Price of the option at given time untill expiration T0 and base asset price S0
     '''
 
-    adequacy_checker(S0=S0, K=K, T=T0, r=r, sigma=sigma,
-                     alpha=alpha, S_max=S_max, T_max=T_max, M=M, N=N)
-
-    U, t, S = FBSsolverFDM(S_max, K, T, r, sigma, alpha, M, N, call)
-    idx_t = np.argwhere(np.isclose(t, t_0, atol=0.5 * T/M))[0]
-    idx_S = np.argwhere(np.isclose(S, S_0, atol=0.5 * S_max/N))[0]
+    adequacy_checker(S0=S0, T=T0)
+    M = t.shape[0] - 1
+    N = S.shape[0] - 1
+    idx_t = np.argwhere(np.isclose(t, T0, atol = 0.5 * t[-1] / M))[0]
+    idx_S = np.argwhere(np.isclose(S, S0, atol = 0.5 * S[-1] / N)[0]
     return U[idx_t, idx_S][0]

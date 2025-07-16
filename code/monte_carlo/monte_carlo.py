@@ -34,7 +34,7 @@ def monte_carlo(S0: float,
     if not (0 < alpha <= 1):
         raise ValueError(f"Invalid alpha: {alpha}. Alpha must be in (0, 1].")
 
-    # Generating random variables from a stable distributio by Chambers-Mallows-Stuck method
+    # Generating random variables from a stable distribution by Chambers-Mallows-Stuck method
     u = np.random.uniform(-np.pi / 2, np.pi / 2, size)
     w = np.random.exponential(1, size)
     term1 = (np.sin(alpha * (u + np.pi / 2))) / (np.cos(u) ** (1 / alpha))

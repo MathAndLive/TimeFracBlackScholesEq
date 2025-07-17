@@ -217,8 +217,8 @@ def FBSsolverFDM(S_max: float,
 
 def FBSextract_value(U: np.ndarray,
                      t: np.ndarray,
-                     S: np.ndarray
-                     T0: float
+                     S: np.ndarray, 
+                     T0: float,
                      S0: float) -> float:
     '''
     Extracts price of the option at given time untill expiration T0 and
@@ -239,5 +239,5 @@ def FBSextract_value(U: np.ndarray,
     M = t.shape[0] - 1
     N = S.shape[0] - 1
     idx_t = np.argwhere(np.isclose(t, T0, atol = 0.5 * t[-1] / M))[0]
-    idx_S = np.argwhere(np.isclose(S, S0, atol = 0.5 * S[-1] / N)[0]
+    idx_S = np.argwhere(np.isclose(S, S0, atol = 0.5 * S[-1] / N))[0]
     return U[idx_t, idx_S][0]
